@@ -6,6 +6,8 @@ import android.view.View
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
+import androidx.core.animation.doOnCancel
+import androidx.core.animation.doOnEnd
 import java.util.concurrent.TimeUnit
 
 class CharsCircle(
@@ -15,9 +17,11 @@ class CharsCircle(
 ) {
     data class CircleStyle(val radius: Int, val textSize: Float)
 
+    private var animator: ValueAnimator? = null
+
     val elements = createCircleElements()
 
-    val distanceBetweenElements = 359f / alphabet.length
+    val angleBetweenElements = 359f / alphabet.length
 
     fun addToConstraintLayout(
         layout: ConstraintLayout,
@@ -34,7 +38,7 @@ class CharsCircle(
                 view.id,
                 centerId,
                 circleStyle.radius,
-                index * distanceBetweenElements
+                index * angleBetweenElements
             )
         }
         constraintSet.applyTo(layout)
@@ -42,18 +46,25 @@ class CharsCircle(
 
     fun shiftAnimated(
         shift: Int,
-        duration: Long = TimeUnit.SECONDS.toMillis(10)
+        duration: Long = TimeUnit.SECONDS.toMillis(3)
     ) {
-        val animator = ValueAnimator.ofFloat(0f, shift * distanceBetweenElements)
-        animator.duration = duration
-        animator.addUpdateListener {
-            elements.forEach { view ->
-                view.layoutParams = (view.layoutParams as ConstraintLayout.LayoutParams).apply {
-                    circleAngle += animator.animatedValue as Float
+        animator?.cancel()
+        animator = ValueAnimator.ofFloat(0f, shift * angleBetweenElements).also { animator ->
+            animator.duration = duration
+            animator.addUpdateListener {
+                elements.forEachIndexed { index, view ->
+                    val angleBeforeAnimation = (index * angleBetweenElements)
+                    view.layoutParams = (view.layoutParams as ConstraintLayout.LayoutParams).apply {
+                        circleAngle = angleBeforeAnimation + animator!!.animatedValue as Float
+                    }
                 }
             }
+            animator.doOnEnd {
+            }
+            animator.doOnCancel {
+            }
+            animator.start()
         }
-        animator.start()
     }
 
     private fun createCircleElements() =

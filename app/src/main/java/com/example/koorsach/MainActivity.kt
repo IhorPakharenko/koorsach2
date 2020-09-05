@@ -2,16 +2,14 @@ package com.example.koorsach
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.widget.addTextChangedListener
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
-import java.math.BigInteger
 import kotlin.math.roundToInt
+
 
 class MainActivity : AppCompatActivity() {
     private val ukrainianAlphabet = "абвгґдеєжзиіїйклмнопрстуфхцчшщьюя"
     private val englishAlphabet = "abcdefghijklmnopqrstuvwxyz"
-
-    private val cipher = CeasarCipher(englishAlphabet)
 
     private lateinit var innerCircle: CharsCircle
 
@@ -24,7 +22,7 @@ class MainActivity : AppCompatActivity() {
                 textSize = 14f.dpToPx(this)
             )
         ).apply {
-            addToConstraintLayout(container, R.id.img_center)
+            addToConstraintLayout(container, R.id.btn_go)
         }
 
         innerCircle = CharsCircle(
@@ -33,26 +31,67 @@ class MainActivity : AppCompatActivity() {
                 textSize = 12f.dpToPx(this)
             )
         ).apply {
-            addToConstraintLayout(container, R.id.img_center)
+            addToConstraintLayout(container, R.id.btn_go)
         }
 
-        et_text.addTextChangedListener {
-            updateUi(
-                it.toString(),
-                et_key.text.toString().toBigIntegerOrNull() ?: return@addTextChangedListener
-            )
+        et_decrypted.setOnFocusChangeListener { _, focused ->
+//            et_encrypted.isEnabled = !focused
+            if (focused) {
+                et_encrypted.text = null
+            }
         }
 
-        et_key.addTextChangedListener {
+//        et_decrypted.addTextChangedListener {
+//            et_encrypted.text = null
+//        }
+
+        et_encrypted.setOnFocusChangeListener { _, focused ->
+//            et_decrypted.isEnabled = !focused
+            if (focused) {
+                et_decrypted.text = null
+            }
+        }
+
+//        et_encrypted.addTextChangedListener {
+//            et_decrypted.text = null
+//        }
+
+        btn_go.setOnClickListener {
+            hideKeyboard()
             updateUi(
-                et_text.text.toString(),
-                it.toString().toBigIntegerOrNull() ?: return@addTextChangedListener
+                decrypted = et_decrypted.text.toString(),
+                encrypted = et_encrypted.text.toString(),
+                key = et_key.text.toString()
             )
         }
     }
 
-    private fun updateUi(text: String, key: BigInteger) {
-        txt_result.text = cipher.enrypt(text, key)
-//        innerCircle.shiftAnimated(cipher.getShift(key))
+    private fun updateUi(decrypted: String, encrypted: String, key: String) {
+        val keyBigInt = key.toBigIntegerOrNull()
+
+        if (keyBigInt == null) {
+            Snackbar.make(container, "Enter key", Snackbar.LENGTH_SHORT).show()
+            return
+        }
+
+        when {
+            decrypted.isNotEmpty() -> {
+                val encryptionResult = CaesarCipher.encrypt(decrypted, englishAlphabet, keyBigInt)
+                et_encrypted.setText(encryptionResult.text)
+                innerCircle.shiftAnimated(encryptionResult.offset)
+            }
+            encrypted.isNotEmpty() -> {
+                val decryptionResult = CaesarCipher.decrypt(encrypted, englishAlphabet, keyBigInt)
+                et_decrypted.setText(decryptionResult.text)
+                innerCircle.shiftAnimated(decryptionResult.offset)
+            }
+            else -> {
+                Snackbar.make(
+                    container,
+                    "Enter either decrypted or encrypted text",
+                    Snackbar.LENGTH_SHORT
+                ).show()
+            }
+        }
     }
 }

@@ -17,15 +17,19 @@ object CaesarCipher {
         original.map { originalChar ->
             val charIndexInAlphabet = alphabet.indexOf(originalChar, ignoreCase = true)
             if (charIndexInAlphabet >= 0) {
-                alphabet.getOrNull(charIndexInAlphabet + offset)
-                    ?: alphabet.getOrNull(charIndexInAlphabet + offset - alphabet.length)
-                    ?: alphabet[charIndexInAlphabet + offset + alphabet.length].let { newChar ->
-                        if (originalChar.isUpperCase()) {
-                            newChar.toUpperCase()
-                        } else {
-                            newChar
-                        }
+                val unsafeIndex = charIndexInAlphabet + offset
+                val index = when {
+                    unsafeIndex > alphabet.lastIndex -> unsafeIndex - alphabet.length
+                    unsafeIndex < 0 -> unsafeIndex + alphabet.length
+                    else -> unsafeIndex
+                }
+                alphabet[index].let { newChar ->
+                    if (originalChar.isUpperCase()) {
+                        newChar.toUpperCase()
+                    } else {
+                        newChar
                     }
+                }
             } else {
                 originalChar
             }

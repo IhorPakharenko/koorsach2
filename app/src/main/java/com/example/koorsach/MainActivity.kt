@@ -7,14 +7,13 @@ import android.widget.AdapterView
 import android.widget.ArrayAdapter
 import android.widget.Spinner
 import androidx.appcompat.app.AppCompatActivity
+import com.example.koorsach.Consts.UKRAINIAN_ALPHABET
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlin.math.roundToInt
 
 
 class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
-    private val ukrainianAlphabet = "абвгґдеєжзиіїйклмнопрстуфхцчшщьюя"
-
     private lateinit var operationMode: OperationMode
 
     private lateinit var innerCircle: CharsCircle
@@ -25,7 +24,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         CharsCircle(
             container,
             R.id.btn_go,
-            ukrainianAlphabet,
+            UKRAINIAN_ALPHABET,
             radius = 160f.dpToPx(this).roundToInt(),
             elementsTextSize = 12f.dpToPx(this)
         ).apply {
@@ -35,7 +34,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         innerCircle = CharsCircle(
             container,
             R.id.btn_go,
-            ukrainianAlphabet,
+            UKRAINIAN_ALPHABET,
             radius = 130f.dpToPx(this).roundToInt(),
             elementsTextSize = 9f.dpToPx(this)
         ).apply {
@@ -116,7 +115,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             OperationMode.ENCRYPT -> {
                 if (decrypted.isNotEmpty()) {
                     val encryptionResult =
-                        CaesarCipher.encrypt(decrypted, ukrainianAlphabet, keyBigInt)
+                        CaesarCipher.encrypt(decrypted, UKRAINIAN_ALPHABET, keyBigInt)
                     et_encrypted.setText(encryptionResult.text)
                     innerCircle.setOffset(encryptionResult.offset)
                 } else {
@@ -126,7 +125,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
             OperationMode.DECRYPT -> {
                 if (encrypted.isNotEmpty()) {
                     val decryptionResult =
-                        CaesarCipher.decrypt(encrypted, ukrainianAlphabet, keyBigInt)
+                        CaesarCipher.decrypt(encrypted, UKRAINIAN_ALPHABET, keyBigInt)
                     et_decrypted.setText(decryptionResult.text)
                     innerCircle.setOffset(decryptionResult.offset)
                 } else {

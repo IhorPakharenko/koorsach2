@@ -108,7 +108,7 @@ class MainActivity : AppCompatActivity(), AdapterView.OnItemSelectedListener {
         val keyBigInt = key.toBigIntegerOrNull()
 
         if (keyBigInt == null) {
-            Snackbar.make(container, "Enter key", Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(container, "Enter integer key", Snackbar.LENGTH_SHORT).show()
             return
         }
 

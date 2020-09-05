@@ -1,35 +1,33 @@
 package com.example.koorsach
 
-import android.animation.ValueAnimator
 import android.content.Context
+import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
-import androidx.core.animation.doOnCancel
-import androidx.core.animation.doOnEnd
-import java.util.concurrent.TimeUnit
+import androidx.core.content.ContextCompat
+import androidx.transition.TransitionManager
 
 class CharsCircle(
     val context: Context,
     val alphabet: String,
     val circleStyle: CircleStyle
 ) {
-    data class CircleStyle(val radius: Int, val textSize: Float)
-
-    private var animator: ValueAnimator? = null
-
     val elements = createCircleElements()
 
-    val angleBetweenElements = 359f / alphabet.length
+    val angleBetweenElements = 360f / alphabet.length
 
     fun addToConstraintLayout(
         layout: ConstraintLayout,
         centerId: Int
     ) {
         elements.forEach {
-            layout.addView(it, layoutParams)
+            layout.addView(it, elementLayoutParams)
         }
+
+        elements[0].setTextColor(ContextCompat.getColor(layout.context, R.color.colorPrimary))
+
         val constraintSet = ConstraintSet()
         constraintSet.clone(layout)
 
@@ -45,25 +43,32 @@ class CharsCircle(
     }
 
     fun shiftAnimated(
-        shift: Int,
-        duration: Long = TimeUnit.SECONDS.toMillis(3)
+        constraintLayout: ConstraintLayout,
+        centerId: Int,
+        shift: Int
     ) {
-        animator?.cancel()
-        animator = ValueAnimator.ofFloat(0f, shift * angleBetweenElements).also { animator ->
-            animator.duration = duration
-            animator.addUpdateListener {
-                elements.forEachIndexed { index, view ->
-                    val angleBeforeAnimation = (index * angleBetweenElements)
-                    view.layoutParams = (view.layoutParams as ConstraintLayout.LayoutParams).apply {
-                        circleAngle = angleBeforeAnimation + animator!!.animatedValue as Float
-                    }
-                }
+        val constraintSetStart = ConstraintSet().apply { clone(constraintLayout) }
+        elements.forEach {
+            Log.d(
+                "start",
+                "${it.text}:${constraintSetStart.getConstraint(it.id).layout.circleAngle}"
+            )
+        }
+        val constraintSetEnd = ConstraintSet().apply {
+            clone(constraintLayout)
+            elements.forEachIndexed { index, view ->
+                val angle = (shift + index) * angleBetweenElements
+                val safeAngle = if (angle == 0f) angle else angle % 360f
+                constrainCircle(view.id, centerId, circleStyle.radius, safeAngle)
+                Log.d("middle?", "I wanna ${(safeAngle)}")
             }
-            animator.doOnEnd {
-            }
-            animator.doOnCancel {
-            }
-            animator.start()
+        }
+
+        TransitionManager.beginDelayedTransition(constraintLayout)
+        constraintSetEnd.applyTo(constraintLayout)
+
+        elements.forEach {
+            Log.d("end", "${it.text}:${constraintSetStart.getConstraint(it.id).layout.circleAngle}")
         }
     }
 
@@ -76,9 +81,11 @@ class CharsCircle(
             }
         }
 
-    val layoutParams
+    private val elementLayoutParams
         get() = ConstraintLayout.LayoutParams(
             ConstraintLayout.LayoutParams.WRAP_CONTENT,
             ConstraintLayout.LayoutParams.WRAP_CONTENT
         )
+
+    data class CircleStyle(val radius: Int, val textSize: Float)
 }

@@ -18,7 +18,8 @@ object CaesarCipher {
             val charIndexInAlphabet = alphabet.indexOf(originalChar, ignoreCase = true)
             if (charIndexInAlphabet >= 0) {
                 alphabet.getOrNull(charIndexInAlphabet + offset)
-                    ?: alphabet[charIndexInAlphabet + offset - alphabet.length].let { newChar ->
+                    ?: alphabet.getOrNull(charIndexInAlphabet + offset - alphabet.length)
+                    ?: alphabet[charIndexInAlphabet + offset + alphabet.length].let { newChar ->
                         if (originalChar.isUpperCase()) {
                             newChar.toUpperCase()
                         } else {

@@ -78,12 +78,12 @@ class MainActivity : AppCompatActivity() {
             decrypted.isNotEmpty() -> {
                 val encryptionResult = CaesarCipher.encrypt(decrypted, englishAlphabet, keyBigInt)
                 et_encrypted.setText(encryptionResult.text)
-                innerCircle.shiftAnimated(encryptionResult.offset)
+                innerCircle.shiftAnimated(container, R.id.btn_go, encryptionResult.offset)
             }
             encrypted.isNotEmpty() -> {
                 val decryptionResult = CaesarCipher.decrypt(encrypted, englishAlphabet, keyBigInt)
                 et_decrypted.setText(decryptionResult.text)
-                innerCircle.shiftAnimated(decryptionResult.offset)
+                innerCircle.shiftAnimated(container, R.id.btn_go, decryptionResult.offset)
             }
             else -> {
                 Snackbar.make(

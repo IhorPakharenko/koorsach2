@@ -1,7 +1,5 @@
 package com.example.koorsach
 
-import android.content.Context
-import android.util.Log
 import android.view.View
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
@@ -10,74 +8,49 @@ import androidx.core.content.ContextCompat
 import androidx.transition.TransitionManager
 
 class CharsCircle(
-    val context: Context,
+    val constraintLayout: ConstraintLayout,
+    val centerId: Int,
     val alphabet: String,
-    val circleStyle: CircleStyle
+    val radius: Int,
+    val elementsTextSize: Float
 ) {
     val elements = createCircleElements()
 
     val angleBetweenElements = 360f / alphabet.length
 
-    fun addToConstraintLayout(
-        layout: ConstraintLayout,
-        centerId: Int
-    ) {
-        elements.forEach {
-            layout.addView(it, elementLayoutParams)
-        }
-
-        elements[0].setTextColor(ContextCompat.getColor(layout.context, R.color.colorPrimary))
-
-        val constraintSet = ConstraintSet()
-        constraintSet.clone(layout)
-
-        elements.forEachIndexed { index, view ->
-            constraintSet.constrainCircle(
-                view.id,
-                centerId,
-                circleStyle.radius,
-                index * angleBetweenElements
+    fun addToConstraintLayout() {
+        elements[0].setTextColor(
+            ContextCompat.getColor(
+                constraintLayout.context,
+                R.color.colorPrimary
             )
+        )
+
+        elements.forEach {
+            constraintLayout.addView(it, elementLayoutParams)
         }
-        constraintSet.applyTo(layout)
+        setOffset(0)
     }
 
-    fun shiftAnimated(
-        constraintLayout: ConstraintLayout,
-        centerId: Int,
-        shift: Int
-    ) {
-        val constraintSetStart = ConstraintSet().apply { clone(constraintLayout) }
-        elements.forEach {
-            Log.d(
-                "start",
-                "${it.text}:${constraintSetStart.getConstraint(it.id).layout.circleAngle}"
-            )
-        }
+    fun setOffset(offset: Int) {
         val constraintSetEnd = ConstraintSet().apply {
             clone(constraintLayout)
             elements.forEachIndexed { index, view ->
-                val angle = (shift + index) * angleBetweenElements
-                val safeAngle = if (angle == 0f) angle else angle % 360f
-                constrainCircle(view.id, centerId, circleStyle.radius, safeAngle)
-                Log.d("middle?", "I wanna ${(safeAngle)}")
+                constrainCircle(view.id, centerId, radius, (offset + index) * angleBetweenElements)
             }
         }
 
         TransitionManager.beginDelayedTransition(constraintLayout)
-        constraintSetEnd.applyTo(constraintLayout)
 
-        elements.forEach {
-            Log.d("end", "${it.text}:${constraintSetStart.getConstraint(it.id).layout.circleAngle}")
-        }
+        constraintSetEnd.applyTo(constraintLayout)
     }
 
     private fun createCircleElements() =
         alphabet.map {
-            TextView(context).apply {
+            TextView(constraintLayout.context).apply {
                 id = View.generateViewId()
                 text = it.toString()
-                textSize = circleStyle.textSize
+                textSize = this@CharsCircle.elementsTextSize
             }
         }
 
@@ -86,6 +59,4 @@ class CharsCircle(
             ConstraintLayout.LayoutParams.WRAP_CONTENT,
             ConstraintLayout.LayoutParams.WRAP_CONTENT
         )
-
-    data class CircleStyle(val radius: Int, val textSize: Float)
 }

@@ -17,44 +17,36 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         CharsCircle(
-            this, englishAlphabet, CharsCircle.CircleStyle(
-                radius = 160f.dpToPx(this).roundToInt(),
-                textSize = 14f.dpToPx(this)
-            )
+            container,
+            R.id.btn_go,
+            englishAlphabet,
+            radius = 160f.dpToPx(this).roundToInt(),
+            elementsTextSize = 14f.dpToPx(this)
         ).apply {
-            addToConstraintLayout(container, R.id.btn_go)
+            addToConstraintLayout()
         }
 
         innerCircle = CharsCircle(
-            this, englishAlphabet, CharsCircle.CircleStyle(
-                radius = 130f.dpToPx(this).roundToInt(),
-                textSize = 12f.dpToPx(this)
-            )
+            container,
+            R.id.btn_go,
+            englishAlphabet,
+            radius = 130f.dpToPx(this).roundToInt(),
+            elementsTextSize = 12f.dpToPx(this)
         ).apply {
-            addToConstraintLayout(container, R.id.btn_go)
+            addToConstraintLayout()
         }
 
         et_decrypted.setOnFocusChangeListener { _, focused ->
-//            et_encrypted.isEnabled = !focused
             if (focused) {
                 et_encrypted.text = null
             }
         }
 
-//        et_decrypted.addTextChangedListener {
-//            et_encrypted.text = null
-//        }
-
         et_encrypted.setOnFocusChangeListener { _, focused ->
-//            et_decrypted.isEnabled = !focused
             if (focused) {
                 et_decrypted.text = null
             }
         }
-
-//        et_encrypted.addTextChangedListener {
-//            et_decrypted.text = null
-//        }
 
         btn_go.setOnClickListener {
             hideKeyboard()
@@ -78,12 +70,12 @@ class MainActivity : AppCompatActivity() {
             decrypted.isNotEmpty() -> {
                 val encryptionResult = CaesarCipher.encrypt(decrypted, englishAlphabet, keyBigInt)
                 et_encrypted.setText(encryptionResult.text)
-                innerCircle.shiftAnimated(container, R.id.btn_go, encryptionResult.offset)
+                innerCircle.setOffset(encryptionResult.offset)
             }
             encrypted.isNotEmpty() -> {
                 val decryptionResult = CaesarCipher.decrypt(encrypted, englishAlphabet, keyBigInt)
                 et_decrypted.setText(decryptionResult.text)
-                innerCircle.shiftAnimated(container, R.id.btn_go, decryptionResult.offset)
+                innerCircle.setOffset(decryptionResult.offset)
             }
             else -> {
                 Snackbar.make(

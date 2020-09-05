@@ -11,6 +11,10 @@
         android:id="@+id/btn_go"
         android:layout_width="160dp"
         android:layout_height="160dp"
+        android:insetLeft="0dp"
+        android:insetTop="0dp"
+        android:insetRight="0dp"
+        android:insetBottom="0dp"
         android:text="GO!"
         android:textSize="32sp"
         app:cornerRadius="1000dp"
@@ -33,9 +37,7 @@
             android:id="@+id/et_decrypted"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:imeOptions="actionDone"
-            android:inputType="text"
-            android:text="abc" />
+            android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
@@ -52,7 +54,6 @@
             android:id="@+id/et_encrypted"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:imeOptions="actionDone"
             android:inputType="text" />
     </com.google.android.material.textfield.TextInputLayout>
 

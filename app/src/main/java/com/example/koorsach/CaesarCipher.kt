@@ -22,7 +22,7 @@ object CaesarCipher {
 
         fun applyOperation() = shift(original, alphabet, offset)
 
-        fun shift(original: String, alphabet: String, offset: Int) =
+        private fun shift(original: String, alphabet: String, offset: Int) =
             original.map { originalChar ->
                 val charIndexInAlphabet = alphabet.indexOf(originalChar, ignoreCase = true)
                 if (charIndexInAlphabet >= 0) {
